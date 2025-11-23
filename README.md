@@ -73,8 +73,8 @@ DuckDB uses file-level locking - you cannot query while the pipeline is writing.
 3. Query the data:
    ```sql
    SELECT COUNT(*) FROM bronze_device.main.bronze_device_events;
-   SELECT * FROM silver.main.silver_device_events LIMIT 10;
-   SELECT * FROM gold.main.gold_platform_events;
+   SELECT col_1, col_2 FROM silver.main.silver_device_events LIMIT 10;
+   SELECT col_1, col_2, col_3 FROM gold.main.gold_platform_events;
    ```
 4. DETACH when done:
    ```sql
