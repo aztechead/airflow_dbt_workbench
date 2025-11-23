@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: silver_device_events
+    description: "Deduplicated and validated device events with unpacked payload fields"
+    columns:
+      - name: event_id
+        description: "Unique identifier for each event"
+        tests:
+          - not_null
+          - unique
+      - name: event_timestamp
+        description: "Timestamp when the event occurred"
+        tests:
+          - not_null
+      - name: user_id
+        description: "Identifier for the user"
+        tests:
+          - not_null
+      - name: device_id
+        description: "Identifier for the device"
+        tests:
+          - not_null
+      - name: session_id
+        description: "Session identifier"
+        tests:
+          - not_null
+      - name: event_window_start
+        description: "10-minute partition bucket carried from bronze to allow partition-pruned incremental loads"
+        tests:
+          - not_null
+      - name: page_load_time_ms
+        description: "Page load time in milliseconds"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 60000
+              inclusive: true
+      - name: latitude
+        description: "Geographic latitude"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -90
+              max_value: 90
+              inclusive: true
+      - name: longitude
+        description: "Geographic longitude"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -180
+              max_value: 180
+              inclusive: true

@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: bronze_device_events
+    description: "Raw device events loaded from parquet files with minimal transformation"
+    columns:
+      - name: event_id
+        description: "Unique identifier for each event"
+        tests:
+          - not_null
+          - unique
+      - name: event_timestamp
+        description: "Timestamp when the event occurred"
+        tests:
+          - not_null
+      - name: user_id
+        description: "Identifier for the user"
+        tests:
+          - not_null
+      - name: device_id
+        description: "Identifier for the device"
+        tests:
+          - not_null
+      - name: device_type
+        description: "Type of device (mobile, tablet, laptop, desktop)"
+        tests:
+          - accepted_values:
+              values: ['mobile', 'tablet', 'laptop', 'desktop']
+      - name: platform
+        description: "Operating system platform"
+      - name: event_type
+        description: "Type of event"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['page_view', 'click', 'scroll', 'video_start', 'video_complete', 'form_submit']
+      - name: event_date
+        description: "Date partition for the event"
+        tests:
+          - not_null
+      - name: event_window_start
+        description: "10-minute partition bucket for the event timestamp (used for incremental pruning)"

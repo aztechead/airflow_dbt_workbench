@@ -1,0 +1,40 @@
+name: 'device_events'
+version: '1.0.0'
+config-version: 2
+
+profile: 'device_events'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  device_events:
+    bronze:
+      +materialized: table
+      +schema: main
+      +tags: ["bronze"]
+      # Each bronze model gets its own database file for parallel execution without lock conflicts
+      bronze_device_events:
+        +database: bronze_device
+      bronze_session_events:
+        +database: bronze_session
+      bronze_transaction_events:
+        +database: bronze_transaction
+    silver:
+      +materialized: table
+      +schema: main
+      +tags: ["silver"]
+      +database: silver
+    gold:
+      +materialized: table
+      +schema: main
+      +tags: ["gold"]
+      +database: gold

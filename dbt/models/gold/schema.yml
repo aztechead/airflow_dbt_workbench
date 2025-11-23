@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: gold_user_engagement
+    description: "Aggregated user engagement metrics and analytics"
+    columns:
+      - name: user_id
+        description: "Identifier for the user"
+        tests:
+          - not_null
+          - unique
+      - name: event_date
+        description: "Date of the events"
+        tests:
+          - not_null
+      - name: total_events
+        description: "Total number of events for the user on this date"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: engagement_score
+        description: "Calculated engagement score"
+        tests:
+          - not_null
+      - name: engagement_category
+        description: "User engagement category"
+        tests:
+          - accepted_values:
+              values: ['highly_engaged', 'engaged', 'moderate', 'low']

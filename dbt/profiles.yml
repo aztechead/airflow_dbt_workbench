@@ -1,0 +1,51 @@
+# Profile for silver/gold layers - needs cross-database access
+device_events:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /opt/duckdb/bronze_device.duckdb
+      threads: 4
+      database: bronze_device
+      schema: main
+      # Attach all other database files for cross-database queries
+      attach:
+        - path: /opt/duckdb/bronze_session.duckdb
+          alias: bronze_session
+        - path: /opt/duckdb/bronze_transaction.duckdb
+          alias: bronze_transaction
+        - path: /opt/duckdb/silver.duckdb
+          alias: silver
+        - path: /opt/duckdb/gold.duckdb
+          alias: gold
+
+# Bronze layer profiles - no attach needed, allows parallel execution
+bronze_device:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /opt/duckdb/bronze_device.duckdb
+      threads: 1
+      database: bronze_device
+      schema: main
+
+bronze_session:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /opt/duckdb/bronze_session.duckdb
+      threads: 1
+      database: bronze_session
+      schema: main
+
+bronze_transaction:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /opt/duckdb/bronze_transaction.duckdb
+      threads: 1
+      database: bronze_transaction
+      schema: main

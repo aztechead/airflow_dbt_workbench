@@ -1,0 +1,71 @@
+services:
+  # Airflow Postgres metadata DB
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+
+  # Airflow webserver and scheduler
+  airflow:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxJf0C0XLJ8I8_3qJiMGe4ZE='
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+      # Parallelism limits to prevent OOM
+      AIRFLOW__CORE__PARALLELISM: 8  # Max 8 tasks across all DAGs
+      AIRFLOW__CORE__DAG_CONCURRENCY: 4  # Max 4 tasks per DAG
+      AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG: 2  # Max 2 concurrent runs per DAG
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./dbt:/opt/dbt
+      - ./data:/opt/data
+      - ./duckdb:/opt/duckdb
+      - ./scripts:/opt/scripts
+    ports:
+      - "8080:8080"
+    command: bash /opt/scripts/init_airflow.sh
+
+  # Event generator service
+  event-generator:
+    build:
+      context: ./event-generator
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+    environment:
+      DATA_DIR: /app/data
+      EVENT_INTERVAL: 10
+
+  # DuckDB web UI browser (official image) - uses host networking for UI access
+  # Uses separate ui_catalog.db - manually ATTACH databases when needed (see README.md)
+  duckdb:
+    image: duckdb/duckdb:latest
+    volumes:
+      - ./duckdb:/data
+    working_dir: /data
+    stdin_open: true
+    tty: true
+    command: ["/duckdb", "ui_catalog.db", "-init", "/data/init.sql"]
+    network_mode: "host"
+
+networks:
+  duckdb-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
