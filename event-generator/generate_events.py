@@ -9,7 +9,7 @@ from faker import Faker
 fake = Faker()
 
 DATA_DIR = Path(os.getenv("DATA_DIR", "/app/data"))
-EVENT_INTERVAL = int(os.getenv("EVENT_INTERVAL", 10))
+EVENT_INTERVAL = int(os.getenv("EVENT_INTERVAL", 5))
 DEVICE_TYPES = ["mobile", "tablet", "laptop", "desktop"]
 PLATFORMS = ["iOS", "Android", "Windows", "MacOS", "Linux"]
 EVENT_TYPES = ["page_view", "click", "scroll", "video_start", "video_complete", "form_submit"]

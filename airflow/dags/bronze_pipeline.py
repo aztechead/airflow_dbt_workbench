@@ -42,7 +42,7 @@ with DAG(
     'bronze_layer',
     default_args=default_args,
     description='Load parquet files into Bronze layer',
-    schedule_interval='*/10 * * * * *',  # Every 10 seconds
+    schedule='*/10 * * * * *',  # Every 10 seconds
     start_date=datetime(2024, 1, 1),
     catchup=False,
     is_paused_upon_creation=False,

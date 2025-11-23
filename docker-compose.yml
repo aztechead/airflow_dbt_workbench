@@ -20,12 +20,18 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - postgres
+    env_file:
+      - .env
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxJf0C0XLJ8I8_3qJiMGe4ZE='
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY?Set in .env}
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+      AIRFLOW__WEBSERVER__AUTHENTICATE: 'false'
+      AIRFLOW__CORE__AUTH_MANAGER: airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: admin:ADMIN
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/simple_auth_manager_passwords.json
       # Parallelism limits to prevent OOM
       AIRFLOW__CORE__PARALLELISM: 8  # Max 8 tasks across all DAGs
       AIRFLOW__CORE__DAG_CONCURRENCY: 4  # Max 4 tasks per DAG
@@ -36,6 +42,7 @@ services:
       - ./data:/opt/data
       - ./duckdb:/opt/duckdb
       - ./scripts:/opt/scripts
+      - ./airflow/simple_auth_manager_passwords.json:/opt/airflow/simple_auth_manager_passwords.json
     ports:
       - "8080:8080"
     command: bash /opt/scripts/init_airflow.sh

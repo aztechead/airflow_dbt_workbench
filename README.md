@@ -10,6 +10,15 @@ make down  # Stop all services
 make clean # Remove all data and reset
 ```
 
+## Setup
+
+1. Create your environment file: `cp .env.example .env`
+2. Generate an Airflow FERNET key and place it in `.env`:
+   ```bash
+   python -c "import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
+   ```
+   Use the printed value for `AIRFLOW__CORE__FERNET_KEY`. Keep the same key while reusing the same Airflow metadata DB; regenerate only if you reset it.
+
 **Access:**
 - Airflow UI: http://localhost:8080 (username: `admin`, password: `admin`)
 - DuckDB UI: http://localhost:8081
